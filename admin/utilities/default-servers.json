@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "ors": {
+      "Name": "ors",
+      "Group": "Servers",
+      "Host": "DB_HOST",
+      "MaintenanceDB": "DB_NAME",
+      "Username": "DB_USER",
+      "Port": "DB_PORT",
+      "SSLMode": "prefer"
+    }
+  }
+}

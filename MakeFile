@@ -1,0 +1,34 @@
+DEBUG?=true
+
+# project name
+COMPOSE_PROJECT_NAME?=citus_project
+container?=master
+
+shell:
+	docker exec -it ${COMPOSE_PROJECT_NAME}_${container} bash
+
+run:
+ifeq ($(DEBUG),true)
+	docker-compose --file docker-compose.dev.yml up --build --renew-anon-volumes --remove-orphans
+else
+	docker-compose up
+endif
+
+service:
+ifeq ($(DEBUG),true)
+	docker-compose --file docker-compose.dev.yml up --detach --build --renew-anon-volumes --remove-orphans
+else
+	docker-compose up --detach
+endif
+
+clean:
+ifeq ($(DEBUG),true)
+	docker-compose --file docker-compose.dev.yml up --build --renew-anon-volumes --remove-orphans
+else
+	docker-compose down
+endif
+
+volume: volumes
+
+volumes:
+	docker volume create ors_postgres_data

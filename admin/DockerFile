@@ -1,0 +1,20 @@
+# intermediate image to prepare config files
+FROM debian:bullseye-slim as debian-base
+
+# copy default connection config
+COPY ./utilities /utilities
+COPY /utilities/default-servers.json /pgadmin4/servers.json
+
+# proxy server support for extension installation
+ARG DB_HOST=127.0.0.1
+ARG DB_NAME=ors
+ARG DB_PORT=5432
+ARG DB_USER=postgres
+
+# update server list from env variables
+RUN /utilities/pg_update_server_list.sh
+
+FROM dpage/pgadmin4:latest
+
+# copy default server json for pgadmin
+COPY --from=debian-base /pgadmin4/servers.json /pgadmin4/servers.json

@@ -1,0 +1,56 @@
+FROM citusdata/citus:latest as citus-setup
+
+# proxy server support for extension installation
+ARG HTTP_PROXY
+ARG HTTPS_PROXY=${HTTP_PROXY}
+
+# clean invalid repositories, add postgres repositories, install build tools, install postgresql build dependencies for extensions
+RUN  rm -rf /etc/apt/sources.list.d/* && \
+  /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y && \
+  apt-get update && \
+  apt-get install --no-install-recommends --fix-missing -y \
+  ca-certificates \
+  build-essential git curl apt-transport-https \
+  postgresql-contrib postgresql-server-dev-12 libpq-dev libssl-dev zlib1g-dev \
+  bison flex
+
+# extensions install, post install script
+COPY ./utilities/extensions /utilities/extensions
+COPY ./utilities/setup /utilities/setup
+RUN /utilities/setup/pre-install.sh && \
+  /utilities/extensions/pg_repack.sh && \
+  /utilities/extensions/hypopg.sh && \
+  /utilities/extensions/periods.sh && \
+  /utilities/extensions/pg_cron.sh && \
+  /utilities/extensions/postgres_json_schema.sh && \
+  /utilities/setup/post-install.sh
+
+# use base citus image
+FROM citusdata/citus:latest
+
+# treat node as worker by default
+ENV CITUS_NODE=worker
+ARG POSTGRESQL_EXT_PATH=/usr/share/postgresql/${PG_MAJOR}/extension
+ARG POSTGRESQL_LIB_PATH=/usr/lib/postgresql/${PG_MAJOR}/lib
+
+# copy built extensions & libs
+COPY --from=citus-setup ${POSTGRESQL_EXT_PATH} ${POSTGRESQL_EXT_PATH}
+COPY --from=citus-setup ${POSTGRESQL_LIB_PATH} ${POSTGRESQL_LIB_PATH}
+
+# db config scripts for entry point
+COPY ./docker-entrypoint-initdb.d/ /docker-entrypoint-initdb.d/
+
+# db init
+COPY ./schema/ /schema/
+
+# scripts
+COPY ./utilities/ /utilities/
+
+# citus config && fixes
+RUN /utilities/citus-config.sh
+
+# start health check script
+HEALTHCHECK --interval=5s --start-period=5s CMD /utilities/pg_healthcheck.sh
+
+# custom entry point to check for successfull db init and run sql scripts after worker is ready
+ENTRYPOINT ["/utilities/docker-entrypoint-custom.sh"]
