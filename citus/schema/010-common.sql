@@ -1,4 +1,3 @@
--- add timestamps (created_at, updated_at) and trigger for updated_at
 CREATE OR REPLACE FUNCTION add_custom_timestamps() RETURNS void AS $$
 DECLARE
     row_data RECORD;
@@ -31,8 +30,6 @@ BEGIN
 		EXECUTE ' ALTER TABLE public.'
 			|| row_data.table_name
 			|| ' OWNER TO postgres; ';
-
-    -- TODO: add limited account permission to tables
 
   END LOOP;
 
