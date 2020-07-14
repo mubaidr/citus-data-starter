@@ -18,11 +18,15 @@ RUN  rm -rf /etc/apt/sources.list.d/* && \
 COPY ./utilities/extensions /utilities/extensions
 COPY ./utilities/setup /utilities/setup
 RUN /utilities/setup/pre-install.sh && \
-  /utilities/extensions/pg_repack.sh && \
+  /utilities/extensions/cstore_fdw.sh && \
   /utilities/extensions/hypopg.sh && \
   /utilities/extensions/periods.sh && \
   /utilities/extensions/pg_cron.sh && \
+  /utilities/extensions/pg_repack.sh && \
+  /utilities/extensions/pgautofailover.sh && \
   /utilities/extensions/postgres_json_schema.sh && \
+  /utilities/extensions/topn.sh && \
+  /utilities/extensions/wal-g.sh && \
   /utilities/setup/post-install.sh
 
 # use base citus image

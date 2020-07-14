@@ -2,7 +2,7 @@ BEGIN;
   -- Already set by citus base image
   -- CREATE EXTENSION IF NOT EXISTS citus CASCADE;
 
-  -- CREATE EXTENSION IF NOT EXISTS pg_cron CASCADE;
+  CREATE EXTENSION IF NOT EXISTS pg_cron CASCADE;
   CREATE EXTENSION IF NOT EXISTS btree_gist CASCADE;
   CREATE EXTENSION IF NOT EXISTS "postgres-json-schema" CASCADE;
   CREATE EXTENSION IF NOT EXISTS periods CASCADE;
@@ -18,6 +18,8 @@ BEGIN;
   CREATE EXTENSION IF NOT EXISTS pg_repack CASCADE;
   CREATE EXTENSION IF NOT EXISTS moddatetime CASCADE;
   CREATE EXTENSION IF NOT EXISTS topn CASCADE;
+  CREATE EXTENSION IF NOT EXISTS cstore_fdw CASCADE;
+  CREATE EXTENSION IF NOT EXISTS pgautofailover CASCADE;
 
   -- Already set by citus base image
   -- UPDATE pg_dist_node_metadata SET metadata=jsonb_insert(metadata, '{docker}', 'true');

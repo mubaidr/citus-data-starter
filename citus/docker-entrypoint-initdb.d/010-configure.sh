@@ -8,7 +8,7 @@ sed -i '$d' ${PGDATA}/postgresql.conf
 # add extension configurations
 cat <<EOT >>${PGDATA}/postgresql.conf
 citus.enable_statistics_collection=off
-shared_preload_libraries='citus,pg_cron,pg_stat_statements'
+shared_preload_libraries='citus,pg_cron,pg_stat_statements,cstore_fdw'
 cron.database_name='${POSTGRES_DB}'
 EOT
 
